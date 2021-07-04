@@ -14,15 +14,22 @@ struct ContentView: View {
     @State private var tip = 5
     @State private var showDetailsScreen = false
     @State private var tipPerPerson = 0.0
+    @State private var totalTipAmount = 0.0
     
     let tips = [5, 10, 15, 20]
     
     func calculateTipPerPerson() {
-        let typedAmount = Double(amount) ?? 0
-        let typedTotalPersons = Double(persons) ?? 0
+        let amountStr = amount.trimmingCharacters(in: .whitespacesAndNewlines)
+        let personsStr = persons.trimmingCharacters(in: .whitespacesAndNewlines)
+        let typedAmount = Double(amountStr) ?? 0
+        let typedTotalPersons = Double(personsStr) ?? 0
         
-        let tipValue = typedAmount + ((typedAmount * Double(tip)) / 100)
-        tipPerPerson = (tipValue / typedTotalPersons)
+        totalTipAmount = typedAmount + ((typedAmount * Double(tip)) / 100)
+        tipPerPerson = (totalTipAmount / typedTotalPersons)
+    }
+    
+    func disableCalculateButton() -> Bool {
+        return (persons.trimmingCharacters(in: .whitespacesAndNewlines) == "" || amount.trimmingCharacters(in: .whitespacesAndNewlines) == "")
     }
     
     var body: some View {
@@ -52,11 +59,11 @@ struct ContentView: View {
                         showDetailsScreen.toggle()
                     }, label: {
                         Text("Calculate Tip")
-                    })
+                    }).disabled(disableCalculateButton())
                 }
             }
             .sheet(isPresented: $showDetailsScreen) {
-                DetailsView(tipPerPerson: $tipPerPerson)
+                DetailsView(tipPerPerson: $tipPerPerson, totalTipAmount: $totalTipAmount)
             }
             .navigationTitle(Text("Tip Calculator"))
         }
